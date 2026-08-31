@@ -4,7 +4,7 @@
   "type": "object",
   "required": ["spec_version", "project", "stack", "database", "api", "auth", "pwa", "deployment"],
   "properties": {
-    "spec_version": { "type": "string", "const": "0.1" },
+    "spec_version": { "type": "string", "enum": ["0.1", "0.2"] },
 
     "project": {
       "type": "object",

@@ -1,14 +1,17 @@
-# scaff (v0.1)
+# scaffold-cli (v0.2)
 
-Egy `.projectspec.md` fájlból generál kész Next.js (App Router) vagy Vite+React projekt-vázat:
-package.json, tsconfig, tailwind config, Prisma schema + API route stubok (ha van adatbázis),
-oldal-stubok a "pages" blokkból, valamint AGENTS.md / CLAUDE.md a korlátokkal és a fejlesztési
-sorrenddel, hogy a VS Code-os fine-tuning fázisban a Copilot / Claude Code is lássa ezeket.
+Egy `.projectspec.md` fájlból generál kész Next.js (App Router) vagy Vite+React projekt-vázat.
+
+**Újdonság v0.2-ben:** ha a spec tartalmaz egy `# ui-screens` blokkot, a CLI már nem üres
+oldal-stubokat rak le, hanem **valódi, működő UI-t** — szerver-komponens listanézeteket
+(Prisma-lekérdezéssel), kliens-komponens form-okat (create/update, prefill-lel), törlés-gombokat,
+egy közös `Nav`-ot, és mindezt egy saját, előre megírt, elegáns `components/ui/` komponens-kicsomagolt
+(Button, Input, Table, Card, Nav) tetejére építve.
 
 ## Telepítés
 
 ```bash
-cd scaff
+cd scaffold-cli
 npm install
 ```
 
@@ -18,48 +21,74 @@ npm install
 node scaffold.mjs <path-to-projectspec.md> [outputDir]
 ```
 
-Példa a mellékelt teszt-specekkel:
+Példák a mellékelt teszt-specekkel:
 
 ```bash
-node scaffold.mjs examples-community-calendar.projectspec.md my-calendar-app
+# v0.1 stílusú spec, üres oldal-stubokkal
+node scaffold.mjs examples-community-calendar-v0.1.projectspec.md my-calendar-app
+
+# v0.2 stílusú spec, teljes UI-val (ASCII wireframe-ekből generált oldalak)
+node scaffold.mjs examples-community-calendar-v0.2.projectspec.md my-calendar-app-full
+
+# Vite + React + PWA ág
 node scaffold.mjs examples-interval-trainer.projectspec.md my-pwa-app
 ```
 
-Ha az `outputDir`-t nem adod meg, a spec `project.name` mezője alapján jön létre a mappa a
-jelenlegi könyvtárban.
+## Mit generál v0.2-ben (Next.js App Router ág)
 
-## A `.projectspec.md` formátum
+- **Listanézetek** (`[Table: ...]`, `[List: ...]`): async szerver-komponens oldal, közvetlen Prisma
+  lekérdezéssel (`findMany`, opcionális `where:` szűrővel egy route-paraméter alapján).
+- **Részletnézetek** (`[Data: Model.findUnique({param})]` + `{field}` interpoláció a címben/szövegben):
+  a rekordot a szerver-komponens tölti be, a `{field}` tokenek a tényleges mezőértékre cserélődnek.
+- **Form-ok** (`[Button: Label -> Model.create()]` / `Model.update({param})`):
+  - **create**: egyetlen kliens-komponens oldal (`"use client"`), saját state-tel, `POST /api/<resource>`-re küld.
+  - **update**: szerver-komponens (`page.tsx`) tölti be a rekordot, egy colokált `form.tsx`
+    kliens-komponens csinálja a szerkesztést, `PATCH /api/<resource>/<id>`-re küld, előtöltött
+    mezőkkel.
+- **Törlés** (`Model.delete({param})`): egy megosztott `DeleteButton` kliens-komponens, ami
+  `DELETE /api/<resource>/<id>`-t hív és `router.refresh()`-eltet.
+- **Navigáció** (`# navigation` blokk): egy közös `Nav` komponens minden oldalon, a `RootLayout`-ba
+  beillesztve.
+- **Elérhetőségi ellenőrzés**: minden generálás előtt lefut, és ha egy oldal sehonnan nincs
+  belinkelve (sem a navigációból, sem másik oldal linkjéből), figyelmeztetést ír ki — de nem áll le.
+- **API route-ok**: minden Prisma modellre `app/api/<resource>/route.ts` (GET lista, POST create) ÉS
+  `app/api/<resource>/[id]/route.ts` (GET egy, PATCH, DELETE) — függetlenül attól, hogy a UI ténylegesen
+  használja-e mindet, konzisztens REST felület végett.
 
-A formátum részletes leírása és a JSON Schema a korábban kapott `projectspec-v0.1` csomagban van
-(`PROJECTSPEC-FORMAT.md`, `projectspec.schema.json`, `chatgpt-system-prompt.md`). Ez a CLI a
-`projectspec.schema.json`-t használja validációra minden futtatáskor.
+## Mit generál v0.2-ben (Vite + React ág)
 
-## Mit generál
+A Vite ág **csak a statikus részt** generálja teljesen (heading, inputok, navigációs
+gombok/linkek) — az adatkötött elemek (`Table`/`List`/`Data` egy Prisma modellel) itt **még nem
+támogatottak** a v0.2-ben, mert a valós projektjeidben (fitness PWA) ez a kombináció eddig nem
+fordult elő, és a determinisztikus, AI-hívás nélküli generálás itt bonyolultabb lenne (nincs
+szerver-komponens fogalom Vite-ban). Ha egy spec Vite ágon adatkötött elemet tartalmaz, a CLI egy
+figyelmeztetést ír ki, és a régi, egyszerű oldal-stubokat generálja helyette.
 
-- **Next.js App Router ág** (`stack.framework: nextjs-app-router`): package.json, tsconfig,
-  next.config.ts, eslint config, Tailwind (ha kérted), `app/layout.tsx` + `app/page.tsx`,
-  oldal-stubok minden "pages" bejegyzésre, `prisma/schema.prisma` (a spec Prisma blokkjából),
-  `lib/prisma.ts`, REST API route stubok minden Prisma modellre (`app/api/<resource>/route.ts`),
-  docker-compose.yml (ha Postgres + docker deployment), .env.example, .gitignore.
-- **Vite+React ág** (`stack.framework: vite-react`): package.json, vite.config.ts, tsconfig
-  fájlok, index.html, `src/main.tsx`, `src/App.tsx`, react-router útvonalak + oldal-stubok (ha
-  `stack.router: react-router`), vite-plugin-pwa bekötve (ha `pwa.enabled: true`).
-- **Mindkét ágon**: `AGENTS.md` + `CLAUDE.md` (projekt-kontextus, stack, adatmodell, korlátok,
-  fejlesztési sorrend) és `README.md` (setup lépések, oldalak listája).
+## Tesztelve, ellenőrizve
 
-## Amit tudatosan NEM csinál (v0.1)
+Mindhárom mellékelt teszt-spec (v0.1 Next.js, v0.1 Vite+PWA, v0.2 Next.js+UI) generálás után:
+- `tsc --noEmit` (Next.js) / `tsc -b --noEmit` (Vite): **0 hiba**
+- `eslint .`: **0 hiba, 0 figyelmeztetés**
+- Vite ág: valódi `vite build` production build is lefut, PWA service worker-rel együtt
+- A generált kódban használt Prisma modell- és mezőnevek programozottan ellenőrizve, hogy
+  megegyeznek a spec `data-model` blokkjában definiáltakkal
 
-- Nincs AI-hívás a generálás közben — tisztán determinisztikus template-motor.
-- Nem futtat `npm install`-t vagy `prisma migrate`-et helyetted — ezeket a kiírt "következő
-  lépések" alapján neked kell futtatnod.
-- Az auth/AI-integráció csak dependency-szinten és az AGENTS.md-ben jelenik meg (jelzi, hogy
-  kell), a tényleges implementációt a VS Code-os fine-tuning fázisra hagyja — szándékosan, hogy
-  ne generáljon feleslegesen bonyolult, kitalált kódot olyan részekhez, amik projektenként úgyis
-  nagyon eltérnek.
+**Amit a sandbox környezet nem tudott ellenőrizni:** a `prisma generate` és `next build` teljes
+lefutását, mert a hálózati house Prisma engine binárisainak CDN-je (`binaries.prisma.sh`) nincs az
+elérhető domain-listán. Ez pusztán a tesztkörnyezet korlátja — a te gépeden ez simán le fog futni.
+
+## Az `[Data: ...]` token — miért kellett hozzáadni
+
+Menet közben kiderült, hogy ha egy képernyő címe `{field}`-et használ (pl. `{displayName}`), de a
+képernyőn nincs olyan elem, ami explicit lekérné az adott modell egyetlen rekordját, a generátornak
+nincs honnan tudnia, melyik rekordra gondolsz. A `[Data: Model.findUnique({param})]` token ezt teszi
+explicitté — néma adatlekérés, nem renderel semmit, csak elérhetővé teszi a rekordot az
+interpolációhoz. Lásd a `PROJECTSPEC-V0.2-EXTENSIONS.md`-t a részletekért.
 
 ## Ismert korlátok / lehetséges bővítési pontok
 
-- Az API route stubok csak GET/POST-ot generálnak, PATCH/DELETE-et még nem.
-- A Vite ág PWA manifestje minimális, ikonokat nem generál.
-- Ha egy repódban tRPC vagy GraphQL API stílus merülne fel, azt még nem támogatja a schema —
-  bővíteni kell a `projectspec.schema.json`-t és a generátort.
+- A Vite ág nem generál adatkötött UI-t (lásd fent).
+- Egy képernyőn csak egy elsődleges modell támogatott (nincs több-modelles form egy oldalon).
+- Nincs feltételes UI-elem, lapozás, rendezés, törlés-megerősítő dialógus — mind szándékosan
+  kimaradt, hogy a scaffold-lépés determinisztikus és AI-hívás nélküli maradjon.
+- Az API route stubok csak alap CRUD-ot generálnak, egyedi validációt/jogosultságkezelést nem.

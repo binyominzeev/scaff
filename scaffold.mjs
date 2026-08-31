@@ -55,14 +55,24 @@ function main() {
   console.log(`📦 Scaffold generálása: ${frontMatter.project.name}`);
   console.log(`   Stack: ${frontMatter.stack.framework}`);
   console.log(`   Cél mappa: ${outDir}`);
+  if (spec.screens?.length) {
+    console.log(`   UI képernyők: ${spec.screens.length}`);
+  }
+
+  const warnings = [...(spec.orphanWarnings || [])];
 
   if (frontMatter.stack.framework === "nextjs-app-router") {
-    generateNextjsProject(outDir, spec);
+    generateNextjsProject(outDir, spec, warnings);
   } else if (frontMatter.stack.framework === "vite-react") {
-    generateViteProject(outDir, spec);
+    generateViteProject(outDir, spec, warnings);
   } else {
     console.error(`❌ Ismeretlen framework: ${frontMatter.stack.framework}`);
     process.exit(1);
+  }
+
+  if (warnings.length) {
+    console.log(`\n${warnings.length} figyelmeztetés:`);
+    for (const w of warnings) console.log(`   ${w}`);
   }
 
   console.log(`\n✅ Kész! Következő lépések:\n`);
