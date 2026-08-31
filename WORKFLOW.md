@@ -12,8 +12,7 @@ beszélgetésben. Így a formátum-instrukció mindig friss, közvetlenül a gen
 
 ## 1. lépés — Fejezd be a tervezőbeszélgetést egy összefoglaló-kéréssel
 
-A tervezőbeszélgetés végén (akár a `chatgpt-system-prompt-v0.2.md`-vel indítottad, akár szabadon
-beszélgettetek) írd be szó szerint:
+A tervezőbeszélgetés végén írd be szó szerint:
 
 ```text
 Foglald össze a projektet egy tömör, strukturált listában, amit egy másik beszélgetésbe át tudok
@@ -52,10 +51,6 @@ figyelnie kell.
 
 Nyisd meg a `chatgpt-generator-prompt.md`-t, másold be a teljes tartalmát, közvetlenül utána
 (ugyanabba az üzenetbe) illeszd be a 2. lépésben kimásolt összefoglalót. Küldd el.
-
-Ez a prompt (a `chatgpt-system-prompt-v0.2.md`-vel ellentétben) **nem beszélget veled** — nem kérdez
-vissza a projekt részleteiről (legfeljebb egyetlen kérdést tehet fel, ha valami kritikusan
-hiányzik), hanem közvetlenül a `.projectspec.md` fájlt adja vissza.
 
 ## 5. lépés — Mentsd el a kapott fájlt, és futtasd le a scaffoldot
 
