@@ -1,4 +1,4 @@
-# scaffold-cli (v0.2)
+# scaff
 
 Egy `.projectspec.md` fájlból generál kész Next.js (App Router) vagy Vite+React projekt-vázat.
 
@@ -11,7 +11,7 @@ egy közös `Nav`-ot, és mindezt egy saját, előre megírt, elegáns `componen
 ## Telepítés
 
 ```bash
-cd scaffold-cli
+cd scaff
 npm install
 ```
 
