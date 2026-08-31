@@ -15,6 +15,34 @@ cd scaff
 npm install
 ```
 
+## AI-alapú tervezés (ChatGPT)
+
+A projekt-specifikáció (`.projectspec.md`) elkészítéséhez két, egymást kiegészítő promptot
+használj — két külön lépésben, két külön beszélgetésben.
+
+### 1. Tervezés — `chatgpt-system-prompt-v0.2.md`
+
+**Mikor:** egy új projekt ötletének kigondolásakor, a beszélgetés legelső üzeneteként.
+
+**Hogyan:** másold be a fájl tartalmát egy friss ChatGPT-beszélgetés elejére, majd beszélgess
+szabadon a projekt ötletéről. A prompt arra utasítja a modellt, hogy kérdezzen vissza (stack,
+adatmodell, képernyők, korlátok stb.), és **ne** generáljon specifikációt, amíg explicit nem
+kéred.
+
+### 2. Generálás — `chatgpt-generator-prompt.md` + `WORKFLOW.md`
+
+**Mikor:** amikor a tervezőbeszélgetés végére értél, és készen állsz a `.projectspec.md` fájl
+tényleges legenerálására.
+
+**Hogyan:** kövesd a `WORKFLOW.md`-ben leírt 5 lépést — röviden: kérj egy tömör összefoglalót a
+tervezőbeszélgetés végén, majd **nyiss egy vadonatúj beszélgetést**, és abba illeszd be a
+`chatgpt-generator-prompt.md` tartalmát + az összefoglalót egyetlen üzenetben. Ez a prompt nem
+beszélget, csak a kész fájlt adja vissza — így elkerülhető, hogy egy hosszú tervezőbeszélgetés
+végén a formátum-instrukció "felhígulva" pontatlan kimenetet eredményezzen.
+
+> A régi, egylépéses `chatgpt-system-prompt.md` (v0.1) ezzel a két fájllal kiváltva — a tervezés
+> és a generálás szándékosan két külön lépés, két külön beszélgetésben.
+
 ## Használat
 
 ```bash
