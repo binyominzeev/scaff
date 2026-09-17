@@ -96,6 +96,17 @@ nincs honnan tudnia, melyik rekordra gondolsz. A `[Data: Model.findUnique({param
 explicitté — néma adatlekérés, nem renderel semmit, csak elérhetővé teszi a rekordot az
 interpolációhoz. Lásd a `PROJECTSPEC-V0.2-EXTENSIONS.md`-t a részletekért.
 
+## Auth opciók
+
+- `auth.provider: "next-auth-credentials"` — minimál stub (`lib/auth.ts`), a tényleges next-auth
+  bekötése a fejlesztőre marad.
+- `auth.provider: "pocket-id-oidc"` — **csak a Next.js App Router ágon** teljes, működő Pocket ID /
+  OIDC (Authorization Code + PKCE) login: `app/api/auth/*` Route Handlerek, httpOnly cookie session,
+  `lib/auth.ts` szerver-oldali JWKS-verifikáció, `AuthProvider`/`useAuth()` React context, és egy
+  `AuthControls` gomb a Nav-ban (vagy önállóan, ha nincs `# navigation` blokk). A Vite+React ágon ez a
+  provider egyelőre figyelmeztetést kap és nem generál semmit (nincs backend a token-cseréhez). Lásd
+  `AUTH_SETUP.md`-t a mögöttes minta teljes dokumentációjáért.
+
 ## Ismert korlátok / lehetséges bővítési pontok
 
 - A Vite ág nem generál adatkötött UI-t (lásd fent).
