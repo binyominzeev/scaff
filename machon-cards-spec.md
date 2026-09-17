@@ -1,35 +1,46 @@
 ---
 spec_version: "0.2"
+
 project:
   name: "machon-cards"
   type: "web-app"
   one_liner: "Egyszerű, Mochi-szerű flashcard rendszer a Sulchán Áruch négy részének és szimánjainak struktúrájára."
+
 stack:
   framework: "nextjs-app-router"
   language: "typescript"
-  styling: "none"
+  styling: "tailwind-v4"
   router: null
+
 database:
   enabled: true
   engine: "sqlite"
   orm: "prisma"
   seed: true
+
 api:
   enabled: true
   style: "route-handlers"
+
 auth:
   enabled: false
+  provider: "none"
+
 ai_integration:
   enabled: false
   provider: "none"
   purpose: ""
+
 pwa:
   enabled: false
   offline: false
+
 deployment:
   target: "pm2"
   docker: false
 ---
+
+### 2. Adatmodell
 
 ```prisma
 // data-model
@@ -41,171 +52,236 @@ enum Section {
   CHOSHEN_MISHPAT
 }
 
-model User {
-  id              String           @id @default(cuid())
-  cards           Card[]
-  userPreferences UserPreference[]
-}
-
 model Siman {
-  id          String           @id @default(cuid())
+  id          String    @id @default(cuid())
   section     Section
   number      Int
   displayName String?
   cards       Card[]
-  preferences UserPreference[] @relation("CurrentSiman")
+  preferences AppPreference[]
 
   @@unique([section, number])
 }
 
 model Card {
   id        String   @id @default(cuid())
-  userId    String
   simanId   String
   front     String
   back      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  siman     Siman   @relation(fields: [simanId], references: [id], onDelete: Cascade)
 
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  siman Siman @relation(fields: [simanId], references: [id], onDelete: Restrict)
-
-  @@index([userId])
   @@index([simanId])
-  @@index([userId, simanId])
 }
 
-model UserPreference {
+model AppPreference {
   id             String @id @default(cuid())
-  userId         String @unique
-  currentSimanId String?
+  currentSimanId String
+  currentSiman   Siman @relation(fields: [currentSimanId], references: [id], onDelete: Restrict)
 
-  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  currentSiman Siman? @relation("CurrentSiman", fields: [currentSimanId], references: [id], onDelete: SetNull)
+  @@index([currentSimanId])
 }
 ```
+
+### 3. Seed adatok
 
 ```json
 # seed-data
 {
-  "User": [
-    { "_alias": "devUser", "id": "dev-test-user" }
-  ],
   "Siman": [
-    { "_alias": "orachChaim1", "section": "ORACH_CHAIM", "number": 1, "displayName": "Orach Chaim 1" },
-    { "_alias": "yorehDeah1", "section": "YOREH_DEAH", "number": 1, "displayName": "Yoreh De'ah 1" },
-    { "_alias": "evenHaezer1", "section": "EVEN_HAEZER", "number": 1, "displayName": "Even HaEzer 1" },
-    { "_alias": "choshenMishpat1", "section": "CHOSHEN_MISHPAT", "number": 1, "displayName": "Choshen Mishpat 1" }
-  ],
-  "UserPreference": [
-    { "_alias": "devPreference", "userId": { "$ref": "devUser" }, "currentSimanId": { "$ref": "orachChaim1" } }
+    {
+      "_alias": "orachChaim1",
+      "id": "seed_orachChaim1",
+      "section": "ORACH_CHAIM",
+      "number": 1,
+      "displayName": "Orach Chaim 1"
+    },
+    {
+      "_alias": "orachChaim2",
+      "id": "seed_orachChaim2",
+      "section": "ORACH_CHAIM",
+      "number": 2,
+      "displayName": "Orach Chaim 2"
+    },
+    {
+      "_alias": "yorehDeah1",
+      "id": "seed_yorehDeah1",
+      "section": "YOREH_DEAH",
+      "number": 1,
+      "displayName": "Yoreh De'ah 1"
+    },
+    {
+      "_alias": "evenHaezer1",
+      "id": "seed_evenHaezer1",
+      "section": "EVEN_HAEZER",
+      "number": 1,
+      "displayName": "Even HaEzer 1"
+    },
+    {
+      "_alias": "choshenMishpat1",
+      "id": "seed_choshenMishpat1",
+      "section": "CHOSHEN_MISHPAT",
+      "number": 1,
+      "displayName": "Choshen Mishpat 1"
+    }
   ],
   "Card": [
-    { "_alias": "cardOne", "userId": { "$ref": "devUser" }, "simanId": { "$ref": "orachChaim1" }, "front": "Mi a kiddus célja?", "back": "A sábát vagy ünnep megszentelésének kinyilvánítása." },
-    { "_alias": "cardTwo", "userId": { "$ref": "devUser" }, "simanId": { "$ref": "orachChaim1" }, "front": "Mikor mondjuk a kiddust?", "back": "A nap megszentelését az étkezéshez kapcsolva mondjuk el." }
+    {
+      "_alias": "sampleCard1",
+      "id": "seed_sampleCard1",
+      "simanId": {
+        "$ref": "orachChaim1"
+      },
+      "front": "Mit jelent az első szimán első alapelve?",
+      "back": "Legyen az Örökkévaló előtti szolgálat tudatos és állandó.",
+      "createdAt": "2026-09-17T00:00:00.000Z",
+      "updatedAt": "2026-09-17T00:00:00.000Z"
+    },
+    {
+      "_alias": "sampleCard2",
+      "id": "seed_sampleCard2",
+      "simanId": {
+        "$ref": "orachChaim1"
+      },
+      "front": "Mi a gyakorlás alapvető működése?",
+      "back": "Először az előlap látható, majd a válasz megjelenítése után a következő kártyára lehet lépni.",
+      "createdAt": "2026-09-17T00:00:00.000Z",
+      "updatedAt": "2026-09-17T00:00:00.000Z"
+    },
+    {
+      "_alias": "sampleCard3",
+      "id": "seed_sampleCard3",
+      "simanId": {
+        "$ref": "yorehDeah1"
+      },
+      "front": "Melyik részhez tartozik ez a szimán?",
+      "back": "Yoreh De'ah.",
+      "createdAt": "2026-09-17T00:00:00.000Z",
+      "updatedAt": "2026-09-17T00:00:00.000Z"
+    }
+  ],
+  "AppPreference": [
+    {
+      "_alias": "defaultPreference",
+      "id": "seed_defaultPreference",
+      "currentSimanId": {
+        "$ref": "orachChaim1"
+      }
+    }
   ]
 }
 ```
+
+### 4. UI képernyők
 
 ```text
 # ui-screens
 
 ## /
-[Text: MachonCards]
-[Data: UserPreference.findUnique({userId})]
-[Text: Aktuális szimán: {currentSimanId}]
-[Text: Kártyák száma: {cardCount}]
+[Data: AppPreference.singleton()]
+[Data: Siman.findMany()]
+[Text: Machon Cards]
+[Text: Aktuális szimán]
+[Text: {currentSimanId}]
+[Text: Kártyák száma]
+[List: rows=Card.findMany()]
 [Button: Gyakorlás -> /study]
 [Button: Új kártya -> /cards/new]
 [Button: Szimán választása -> /siman]
-[Table: columns=front,back; rows=Card.findMany(where: userId={userId}); rowLink=/cards/{id}]
+[Table: columns=front,back; rows=Card.findMany(); rowLink=/cards/{id}]
 
 ## /cards/new
 [Text: Új kártya]
 [Input: front (textarea, required) placeholder="Előlap"]
 [Input: back (textarea, required) placeholder="Hátlap"]
-[Input: simanId (text, required) placeholder="Szimán"]
+[Select: simanId; options=Siman.findMany(); value=id; label=displayName; required]
 [Button: Mentés -> Card.create()]
-[Link: Mégse -> /]
+[Link: Vissza a dashboardra -> /]
 
 ## /cards/[id]
 [Data: Card.findUnique({id})]
 [Text: Kártya szerkesztése]
-[Input: front (textarea, required) placeholder="{front}"]
-[Input: back (textarea, required) placeholder="{back}"]
-[Input: simanId (text, required) placeholder="{simanId}"]
+[Text: Szimán: {simanId}]
+[Input: front (textarea, required) placeholder="Előlap"]
+[Input: back (textarea, required) placeholder="Hátlap"]
+[Select: simanId; options=Siman.findMany(); value=id; label=displayName; required]
 [Button: Mentés -> Card.update({id})]
 [Button: Törlés -> Card.delete({id})]
-[Link: Vissza -> /]
+[Link: Vissza a dashboardra -> /]
 
 ## /siman
-[Text: Szimán választása]
-[Text: Orach Chaim]
+[Data: Siman.findMany()]
+[Data: AppPreference.singleton()]
+[Text: Szimánok]
 [List: rows=Siman.findMany()]
-[Text: Yoreh De'ah]
-[List: rows=Siman.findMany()]
-[Text: Even HaEzer]
-[List: rows=Siman.findMany()]
-[Text: Choshen Mishpat]
-[List: rows=Siman.findMany()]
-[Button: Aktuális szimán beállítása -> UserPreference.update({userId})]
+[Input: currentSimanId (text, required) placeholder="Aktuális szimán azonosítója"]
+[Button: Aktuális szimán beállítása -> AppPreference.updateSingleton()]
+[Link: Dashboard -> /]
 
 ## /study
-[Data: UserPreference.findUnique({userId})]
+[Data: AppPreference.singleton()]
 [Text: Gyakorlás]
 [Text: Aktuális szimán: {currentSimanId}]
-[Text: Kérdés]
-[Text: {front}]
-[Button: Válasz mutatása -> /study]
-[Text: Válasz]
-[Text: {back}]
-[Button: Következő -> /study]
+[InteractiveList: rows=Card.findMany(); primary=front; secondary=back; reveal="Válasz mutatása"; next="Következő"]
+[Link: Dashboard -> /]
 
 ## /import
 [Text: Mochi import]
-[Input: front (text, required) placeholder="Mochi export fájl"]
+[Input: file (text, required) placeholder="Mochi export fájl"]
 [Button: Import -> /import]
 [Text: Import eredménye]
 [Link: Dashboard -> /]
 ```
 
+### 5. Navigáció
+
 ```text
 # navigation
+
 [Nav: Dashboard -> /, Gyakorlás -> /study, Szimánok -> /siman, Új kártya -> /cards/new, Import -> /import]
 ```
 
+### 6. Korlátok
+
 ```text
 # constraints
-- Ne túltervezzük az első verziót: csak a szükséges flashcard CRUD, szimánkezelés, egyszerű gyakorlás és Mochi import készüljön el.
-- Nincs spaced repetition, Anki-szerű algoritmus, statisztikai dashboard, streak, gamification vagy achievement.
+
+- Az első verzióban nincs auth, session vagy User modell; minden látogató ugyanazt a közös adatállományt használja.
+- A Sulchán Áruch struktúrája és a felhasználói kártyák maradjanak különválasztva.
+- Az alapstruktúra Sulchán Áruch → rész → szimán → kártyák.
+- Egy Card alapvetően csak front + back + siman kapcsolatot tartalmazzon.
+- Nincs spaced repetition vagy összetett gyakorlási algoritmus.
+- Nincs statisztikai dashboard, streak, gamification vagy achievement rendszer.
 - Nincs AI-integráció.
 - Nincs WebSocket vagy realtime sync.
 - Nincs offline-first működés vagy PWA.
-- Nincs komplex tag- vagy deck-rendszer.
-- A fő struktúra: Sulchán Áruch → rész → szimán → kártyák.
-- A Sulchán Áruch struktúrája és a felhasználói kártyák legyenek különválasztva.
-- Egy kártya alapvetően front + back + siman + user.
-- A cross-device működést a szerveroldali PostgreSQL adatbázis biztosítja.
-- Az auth legyen elkülönített getCurrentUser() boundary mögött, és a fejlesztés korai szakaszában egy tesztfelhasználóval is működhessen.
-- Ne legyen külön mikroszerviz vagy komplex REST API-réteg.
-- Ne használjunk Dockert; deployment PM2 + nginx + PostgreSQL környezetben történjen.
-- Az UI legyen egyszerű, gyors, reszponzív és mobil/tablet használatra kényelmes.
-- A gyakorlási workflow legyen könnyen módosítható és bővíthető későbbi tapasztalatok alapján.
+- Nincs komplex tag-, deck- vagy hierarchikus Mochi-modell.
+- Nincs mikroszerviz-architektúra és nincs Docker.
+- Az API maradjon egyszerű Next.js route handler / server-side CRUD megoldás.
+- Az UI legyen egyszerű, gyors, reszponzív és mobile-first.
+- Ne tervezzünk előre olyan funkciókat, amelyekre az első használat során nincs szükség.
+- A gyakorlási workflow maradjon egyszerű, és a későbbi használati tapasztalatok alapján bővíthető legyen.
+- Az adatmodellt úgy kell kialakítani, hogy később auth és további gyakorlási módok hozzáadhatók legyenek nagyobb újratervezés nélkül, de az első verzióban ne legyen auth-absztrakció vagy felesleges User-réteg.
+- A cross-device működést a központi VPS-en futó SQLite adatbázis biztosítja.
+- A Mochi import ne próbáljon automatikusan szimánt felismerni.
 ```
+
+### 7. Fejlesztési sorrend
 
 ```text
 # development-order
+
 1. Next.js + TypeScript scaffold
-2. PostgreSQL + Prisma
-3. Adatmodell és Sulchán Áruch szimán-struktúra seedelése
+2. SQLite + Prisma
+3. Adatmodell és fejlesztői Sulchán Áruch szimán-struktúra seedelése
 4. Dashboard
 5. Kártya CRUD
-6. Szimánválasztás + aktuális szimán per user
+6. Szimánválasztás és aktuális szimán tárolása
 7. Egyszerű gyakorlási mód
 8. Mochi import
-9. Reszponzív/mobil UI finomítása
-10. Auth bekötése
-11. VPS deployment PM2 + nginx
-12. Használat közben a gyakorlási workflow további finomítása
+9. Reszponzív és mobil UI finomítása
+10. VPS deployment PM2 + nginx
+11. Későbbi külön fejlesztési lépésben auth hozzáadása
+12. A használat alapján a gyakorlási workflow további finomítása
 ```
-

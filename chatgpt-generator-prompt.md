@@ -1,4 +1,4 @@
-# Generátor-only prompt (v0.2)
+# Generátor-only prompt (v0.3)
 
 Ezt egy **vadonatúj, tiszta beszélgetésben** használd — ne ugyanabban a szálban, ahol a projektet
 kitaláltátok. A tervezőbeszélgetés végén kért összefoglalót (lásd `WORKFLOW.md` 1. lépés) illeszd
@@ -79,15 +79,39 @@ Minden képernyő "## /route" fejléccel kezdődik (dinamikus szegmens: [id], pl
 Token-szótár:
 
   [Input: mezőnév (típus, modifiers) placeholder="..."]   -- típus: text/email/number/date/textarea, modifier: required
+    [Select: mezőnév; options=Model.findMany(); value=id; label=name; required]
   [Button: Felirat -> action]                              -- action = /route VAGY Model.op()
   [Link: Felirat -> /route]
   [Table: columns=mező1,mező2; rows=Model.op(); rowLink=/route/{id}]
   [List: rows=Model.op()]
-  [Data: Model.findUnique({param})]                        -- néma lekérés, csak {field} interpolációhoz
+  [InteractiveList: rows=Model.findMany(); primary=field; secondary=field; reveal="..."; next="..."]
+  [Data: Model.findUnique({routeParam})]                   -- néma lekérés dinamikus rekordhoz
+  [Data: Model.singleton()]                                -- egyetlen seedelt/statikus rekord lekérése
   [Text: szöveg vagy {field}]
 
-Támogatott Model.op(): findMany() | findMany(where: mező={param}) | findUnique({param}) |
-create() | update({param}) | delete({param})
+Támogatott Model.op(): findMany() | findMany(where: mező={routeParam}) | findUnique({routeParam}) |
+singleton() | create() | update({routeParam}) | updateSingleton() | delete({routeParam})
+
+A kapcsos zárójelben mindig valódi nevet használj, soha ne írd ki szó szerint a `param` vagy
+`routeParam` szót. Például a `## /cards/[id]` képernyőn `Card.findUnique({id})`,
+`Card.update({id})` és `Card.delete({id})` helyes. A `## /` vagy `## /siman` statikus
+képernyőn nincs route paraméter, ezért ott ne használj `findUnique({param})` vagy
+`findMany(where: ...={param})` alakot. Authos alkalmazásnál a bejelentkezett felhasználó
+azonosítóját `{userId}` néven használd, és az auth legyen bekapcsolva; auth nélküli alkalmazásnál
+használj `findMany()`-t, vagy tervezz olyan statikus, seedelt rekordot, amelyhez nem kell
+ismeretlen azonosító. Az `update()` és `delete()` művelet soha nem lehet paraméter nélküli:
+mindig valódi route-paramétert kell megadni, például `update({id})`. Singleton rekord
+közvetlen, azonosító nélküli lekéréséhez `Model.singleton()`, frissítéséhez
+`Model.updateSingleton()` használandó. Ezek csak olyan modellekhez valók, amelyekből a seed
+egy, jól meghatározott rekordot tartalmaz.
+
+A `Select` relation mezőkhöz használható. Az `options` mindig valódi `findMany()` lekérés,
+a `value` és `label` valódi modellmező legyen. Ne kérj kötelező relation-azonosítót szabad
+szöveges `Input` mezőben, ha a választható rekordok lekérhetők `Select`-tel.
+
+Az `InteractiveList` általános, kliensoldali listaworkflow: a `primary` mező az elsőként
+megjelenő érték, a `secondary` mező a `reveal` gombbal megjelenő érték, a `next` gomb pedig
+a következő listaelemre lép. Ne a route vagy a modell neve alapján próbálj workflow-t kitalálni.
 
 SZABÁLY: {field} MINDIG interpoláció (route paraméter vagy mezőérték). Zárójel nélküli szöveg
 mindig szó szerinti. Ha egy képernyő címe/szövege {field}-et használ, de nincs form ami
@@ -109,6 +133,7 @@ Legalább egy "ne túltervezzünk" jellegű szabály.
 Generálás előtt ellenőrizd magadban:
 - minden route statikus vagy dinamikus szegmensei konzisztensek a Table/Button/Link
   hivatkozásokkal
+- sehol nem maradt szó szerint `{param}` vagy `{routeParam}`; minden művelet valódi route-paramétert használ
 - minden {field} vagy route paraméterként, vagy [Data:]/form-mezőként fel van oldva
 - minden képernyő elérhető valahonnan
 - a front matter minden enum-értéke pontosan a megadott listák egyike
