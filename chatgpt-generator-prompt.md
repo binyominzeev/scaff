@@ -17,8 +17,9 @@ generálj, és ha valami kisebb részlet hiányzik, válassz egyszerű, nem túl
 alapértelmezést.
 
 A válaszod KIZÁRÓLAG a `.projectspec.md` fájl tartalma legyen — semmi bevezető szöveg, semmi
-magyarázat előtte vagy utána, semmi "Íme a spec:" jellegű mondat. Egyetlen kódblokkban add vissza
-az egész fájlt, hogy egy az egyben kimásolható legyen.
+magyarázat előtte vagy utána, semmi "Íme a spec:" jellegű mondat. NE tedd az egész fájlt egyetlen
+külső ``` kódblokkba — írd ki nyers szövegként, a fájlon belüli ```prisma és ```text blokkokkal
+együtt, hogy a fájl közvetlenül, egy az egyben kimásolható és elmenthető legyen.
 
 PONTOS FORMÁTUM, ebben a sorrendben:
 

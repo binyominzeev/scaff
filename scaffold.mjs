@@ -78,6 +78,9 @@ function main() {
   console.log(`\n✅ Kész! Következő lépések:\n`);
   console.log(`   cd ${path.relative(process.cwd(), outDir) || "."}`);
   console.log(`   npm install`);
+  if (frontMatter.database?.enabled && frontMatter.database.engine === "postgres") {
+    console.log(`   docker compose up -d`);
+  }
   if (frontMatter.database?.enabled && frontMatter.database.orm === "prisma") {
     console.log(`   npx prisma migrate dev --name init`);
   }
