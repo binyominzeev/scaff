@@ -76,7 +76,8 @@ aliasra mutató `$ref`-et, amely nincs definiálva.
 ### 4. UI képernyők — ```text``` blokk, "# ui-screens" fejléccel
 
 Minden képernyő "## /route" fejléccel kezdődik (dinamikus szegmens: [id], pl. "## /people/[id]").
-Token-szótár:
+A doboz-tartalom ELSŐ sima (zárójel nélküli) szövegsora a képernyő főcíme (nagy H1-ként jelenik
+meg) — MINDIG adj meg ilyet minden képernyőn, ne csak a formoknál. Token-szótár:
 
   [Input: mezőnév (típus, modifiers) placeholder="..."]   -- típus: text/email/number/date/textarea, modifier: required
     [Select: mezőnév; options=Model.findMany(); value=id; label=name; required]
@@ -87,7 +88,12 @@ Token-szótár:
   [InteractiveList: rows=Model.findMany(); primary=field; secondary=field; reveal="..."; next="..."]
   [Data: Model.findUnique({routeParam})]                   -- néma lekérés dinamikus rekordhoz
   [Data: Model.singleton()]                                -- egyetlen seedelt/statikus rekord lekérése
+  [Heading: szöveg vagy {field}]                            -- kisebb alcím (H2) egy szekció elé, pl. egy Table/List fölé
   [Text: szöveg vagy {field}]
+
+Ha egy képernyőn több, egymástól elkülönülő adatblokk van (pl. két Table vagy egy Table és egy
+InteractiveList), tegyél egy `[Heading: ...]` sort közvetlenül az adott blokk elé, hogy a
+felhasználó lássa, melyik szekció mit mutat — ez pusztán vizuális, nem hoz létre új adatlekérést.
 
 Támogatott Model.op(): findMany() | findMany(where: mező={routeParam}) | findUnique({routeParam}) |
 singleton() | create() | update({routeParam}) | updateSingleton() | delete({routeParam})

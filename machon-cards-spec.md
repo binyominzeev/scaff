@@ -185,7 +185,6 @@ model AppPreference {
 [Text: Aktuális szimán]
 [Text: {currentSimanId}]
 [Text: Kártyák száma]
-[List: rows=Card.findMany()]
 [Button: Gyakorlás -> /study]
 [Button: Új kártya -> /cards/new]
 [Button: Szimán választása -> /siman]
@@ -215,7 +214,7 @@ model AppPreference {
 [Data: AppPreference.singleton()]
 [Text: Szimánok]
 [List: rows=Siman.findMany()]
-[Input: currentSimanId (text, required) placeholder="Aktuális szimán azonosítója"]
+[Select: currentSimanId; options=Siman.findMany(); value=id; label=displayName; required]
 [Button: Aktuális szimán beállítása -> AppPreference.updateSingleton()]
 [Link: Dashboard -> /]
 

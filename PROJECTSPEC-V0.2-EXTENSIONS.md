@@ -60,13 +60,18 @@ körülöttük lévő `┌─│└` karaktereket figyelmen kívül hagyja.
 
 | Token | Jelentés | Generált eredmény |
 |---|---|---|
-| `[Text: ...]` | statikus szöveg, vagy `{field}`-fel mezőérték-interpoláció | `<p>` / `<h1>` a kontextustól függően |
+| `[Text: ...]` | statikus szöveg, vagy `{field}`-fel mezőérték-interpoláció | `<p>` |
+| `[Heading: ...]` | alcím egy szekció (pl. egy Table/List) elé, vagy `{field}`-fel mezőérték-interpoláció | `<h2>`, csak vizuális, nem hoz létre adatlekérést |
 | `[Input: name (type, modifiers)]` | form mező | vezérelt `<input>`, típus szerint (`text`, `email`, `number`, `date`, `textarea`) |
 | `[Button: Label -> action]` | gomb | ha `action` egy `/route` → navigáció (`<Link>`); ha `Model.op()` → form submit handler |
 | `[Link: Label -> /route]` | sima navigáció | `<Link>` |
 | `[Table: columns=...; rows=...; rowLink=...]` | listanézet | szerver oldali lekérdezés + táblázat, opcionális sor-link |
 | `[List: rows=...]` | egyszerűbb, nem táblázatos lista | `<ul>` kártyákkal, Table helyett akkor, ha nincs több oszlop |
 | `[Data: Model.findUnique({param})]` | néma adatlekérés, nem renderel semmit | elérhetővé teszi a rekordot a képernyő `{field}` interpolációi számára |
+
+Minden képernyő doboz-tartalmának első sima szövegsora a képernyő főcíme (`<h1>`) — ha ezt a spec
+nem adja meg, a generátor a route szegmensből (vagy a `/` esetén a projekt nevéből) képez
+fallback címet, tehát mindig lesz látható cím minden oldalon.
 
 **A `[Data: ...]` token szerepe:** ha egy képernyő címe vagy szövege `{field}`-et használ (pl. `{displayName}`),
 de a képernyőn nincs olyan `Table`/`Button`, ami ugyanazt a modellt egyetlen rekordként lekérné, a
@@ -114,8 +119,10 @@ Ezt egy új, **minden UI-t generáló specben ajánlott** blokk oldja meg: **`# 
 
 Ez egy állandó navigációs sávot generál (`components/ui/nav.tsx`), amit a generátor beépít az
 `app/layout.tsx`-be — tehát **minden oldalon megjelenik**, függetlenül attól, hogy az adott oldal
-wireframe-je hivatkozik-e rá vagy sem. A `[Nav: ...]` tokenben csak a fő, nem-dinamikus oldalakat
-érdemes felsorolni (a `/people/[id]`-szerű részletoldalak természetesen nem valók egy fix menübe).
+wireframe-je hivatkozik-e rá vagy sem. A sáv a projekt nevét is márkanévként megjeleníti a linkek
+előtt (a `/`-re mutatva), így minden oldalon egyértelmű, melyik alkalmazásban jársz. A `[Nav: ...]`
+tokenben csak a fő, nem-dinamikus oldalakat érdemes felsorolni (a `/people/[id]`-szerű
+részletoldalak természetesen nem valók egy fix menübe).
 
 ### Elérhetőségi ellenőrzés (validáció, nem generálás)
 
