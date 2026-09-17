@@ -40,7 +40,40 @@ PONTOS FORMÁTUM, ebben a sorrendben:
 
 Csak ha database.enabled: true. Valódi, érvényes Prisma model definíciók.
 
-### 3. UI képernyők — ```text``` blokk, "# ui-screens" fejléccel
+### 3. Seed adatok — kötelező ```json``` blokk adatbázis esetén, "# seed-data" fejléccel
+
+Ha `database.enabled: true`, akkor a front matterben mindig `seed: true` legyen, és ez a
+`# seed-data` blokk kötelező. Ne hagyd ki, ne állítsd `seed: false` értékre. Ha
+`database.enabled: false`, akkor `seed: false` legyen, és ne generálj seed blokkot.
+A seed blokk gyökere objektum legyen,
+a kulcsok Prisma modellnevek, az értékek rekordtömbök. Minden rekordnak legyen egy egyedi
+`_alias` mezője. Az `id` elhagyható; a scaffold stabil `seed_<alias>` ID-t generál.
+Relációs mezőnél alias-hivatkozást használj: `{ "$ref": "alias" }`.
+
+Példa:
+
+```json
+# seed-data
+{
+  "User": [
+    { "_alias": "devUser", "id": "dev-test-user" }
+  ],
+  "Siman": [
+    { "_alias": "orachChaim1", "section": "ORACH_CHAIM", "number": 1, "displayName": "Első szimán" }
+  ],
+  "UserPreference": [
+    { "_alias": "devPreference", "userId": { "$ref": "devUser" }, "currentSimanId": { "$ref": "orachChaim1" } }
+  ]
+}
+```
+
+Csak a Prisma modellben létező mezőket használd. A seed adatok legyenek kis méretű, hasznos
+fejlesztői/demo adatok, ne teljes adatbázis-export. Legyen legalább egy használható kezdő/demo
+rekord minden, a kezdőképernyő által lekérdezett modellhez, valamint az auth által használt
+tesztfelhasználóhoz szükséges rekord. A relációk legyenek feloldhatók, és ne használj olyan
+aliasra mutató `$ref`-et, amely nincs definiálva.
+
+### 4. UI képernyők — ```text``` blokk, "# ui-screens" fejléccel
 
 Minden képernyő "## /route" fejléccel kezdődik (dinamikus szegmens: [id], pl. "## /people/[id]").
 Token-szótár:
@@ -63,15 +96,15 @@ előtöltené a rekordot, tedd be a [Data: Model.findUnique({param})] tokent.
 Minden képernyőnek legyen legalább egy bejövő linkje valahonnan (navigációból vagy másik
 képernyő linkjéből) — a "/" kivétel. Dinamikus képernyőknél elég egy rowLink sablon.
 
-### 4. Navigáció — ```text``` blokk, "# navigation" fejléccel
+### 5. Navigáció — ```text``` blokk, "# navigation" fejléccel
 
   [Nav: Felirat -> /route, Felirat -> /route, ...]
 
-### 5. Korlátok — ```text``` blokk, "# constraints" fejléccel
+### 6. Korlátok — ```text``` blokk, "# constraints" fejléccel
 
 Legalább egy "ne túltervezzünk" jellegű szabály.
 
-### 6. Fejlesztési sorrend (opcionális) — ```text``` blokk, "# development-order" fejléccel
+### 7. Fejlesztési sorrend (opcionális) — ```text``` blokk, "# development-order" fejléccel
 
 Generálás előtt ellenőrizd magadban:
 - minden route statikus vagy dinamikus szegmensei konzisztensek a Table/Button/Link

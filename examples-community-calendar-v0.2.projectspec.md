@@ -70,6 +70,21 @@ model Tag {
 }
 ```
 
+```json
+# seed-data
+{
+  "Person": [
+    { "_alias": "demoPerson", "id": "demo-person", "displayName": "Demo személy", "hebrewName": "", "notes": "Fejlesztési tesztadat" }
+  ],
+  "Tag": [
+    { "_alias": "demoTag", "id": "demo-tag", "name": "demo" }
+  ],
+  "Event": [
+    { "_alias": "demoEvent", "id": "demo-event", "personId": { "$ref": "demoPerson" }, "type": "Közösségi esemény", "hebrewDate": "5787 Tisri 1", "gregorianDate": "2026-09-12T18:00:00.000Z", "remarks": "Fejlesztési tesztadat" }
+  ]
+}
+```
+
 ```text
 # ui-screens
 

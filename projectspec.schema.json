@@ -50,7 +50,17 @@
       "allOf": [
         {
           "if": { "properties": { "enabled": { "const": true } } },
-          "then": { "required": ["engine", "orm"] }
+          "then": {
+            "required": ["engine", "orm", "seed"],
+            "properties": { "seed": { "const": true } }
+          }
+        },
+        {
+          "if": { "properties": { "enabled": { "const": false } } },
+          "then": {
+            "required": ["seed"],
+            "properties": { "seed": { "const": false } }
+          }
         }
       ]
     },

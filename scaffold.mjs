@@ -83,6 +83,9 @@ function main() {
   }
   if (frontMatter.database?.enabled && frontMatter.database.orm === "prisma") {
     console.log(`   npx prisma migrate dev --name init`);
+    if (frontMatter.database.seed && spec.seedData) {
+      console.log(`   npx prisma db seed`);
+    }
   }
   console.log(`   npm run dev`);
   console.log(`\n   Nyisd meg VS Code-ban, és folytasd a fine-tuningot — az AGENTS.md / CLAUDE.md`);

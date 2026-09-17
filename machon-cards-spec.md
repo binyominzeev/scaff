@@ -11,15 +11,14 @@ stack:
   router: null
 database:
   enabled: true
-  engine: "postgres"
+  engine: "sqlite"
   orm: "prisma"
   seed: true
 api:
   enabled: true
   style: "route-handlers"
 auth:
-  enabled: true
-  provider: "next-auth-credentials"
+  enabled: false
 ai_integration:
   enabled: false
   provider: "none"
@@ -83,6 +82,28 @@ model UserPreference {
 
   user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   currentSiman Siman? @relation("CurrentSiman", fields: [currentSimanId], references: [id], onDelete: SetNull)
+}
+```
+
+```json
+# seed-data
+{
+  "User": [
+    { "_alias": "devUser", "id": "dev-test-user" }
+  ],
+  "Siman": [
+    { "_alias": "orachChaim1", "section": "ORACH_CHAIM", "number": 1, "displayName": "Orach Chaim 1" },
+    { "_alias": "yorehDeah1", "section": "YOREH_DEAH", "number": 1, "displayName": "Yoreh De'ah 1" },
+    { "_alias": "evenHaezer1", "section": "EVEN_HAEZER", "number": 1, "displayName": "Even HaEzer 1" },
+    { "_alias": "choshenMishpat1", "section": "CHOSHEN_MISHPAT", "number": 1, "displayName": "Choshen Mishpat 1" }
+  ],
+  "UserPreference": [
+    { "_alias": "devPreference", "userId": { "$ref": "devUser" }, "currentSimanId": { "$ref": "orachChaim1" } }
+  ],
+  "Card": [
+    { "_alias": "cardOne", "userId": { "$ref": "devUser" }, "simanId": { "$ref": "orachChaim1" }, "front": "Mi a kiddus célja?", "back": "A sábát vagy ünnep megszentelésének kinyilvánítása." },
+    { "_alias": "cardTwo", "userId": { "$ref": "devUser" }, "simanId": { "$ref": "orachChaim1" }, "front": "Mikor mondjuk a kiddust?", "back": "A nap megszentelését az étkezéshez kapcsolva mondjuk el." }
+  ]
 }
 ```
 
