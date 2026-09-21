@@ -31,10 +31,21 @@ PONTOS FORMÁTUM, ebben a sorrendben:
           styling (tailwind-v3|tailwind-v4|none), router (react-router|null)}
   database: {enabled, engine (none|sqlite|postgres), orm (none|prisma|raw-driver), seed}
   api: {enabled, style (route-handlers|none)}
-  auth: {enabled, provider (none|next-auth-credentials)}
+  auth: {enabled, provider (none|next-auth-credentials|pocket-id-oidc)}
   ai_integration: {enabled, provider (none|openai|custom-server), purpose}
   pwa: {enabled, offline}
   deployment: {target (local-dev|docker-vps|pm2), docker}
+
+Auth provider választás:
+- `none`: nincs bejelentkezés.
+- `next-auth-credentials`: Next.js App Router projektnél a scaffold minimális next-auth
+  alapot generál; a tényleges session- és credential-logikát később kell bekötni.
+- `pocket-id-oidc`: csak `nextjs-app-router` esetén válaszd. A scaffold teljes Pocket ID /
+  OIDC Authorization Code + PKCE flow-t generál, Next.js Route Handlerekkel, JWKS token-
+  ellenőrzéssel és httpOnly cookie sessionnel. A Vite+React ág ezt jelenleg nem támogatja.
+  A projekt összefoglalójában legyen egyértelmű, hogy a Pocket ID klienshez szükséges az
+  issuer, client ID, backend-only client secret, valamint az `/auth/callback` redirect URI.
+  A generált `.env` értékeit nem szabad kitalálni vagy titokkal feltölteni.
 
 ### 2. Adatmodell — ```prisma``` blokk, "// data-model" komenttel kezdve
 

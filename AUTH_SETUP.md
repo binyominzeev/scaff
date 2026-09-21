@@ -763,3 +763,52 @@ Miután mindkét oldal be van kötve, ebben a sorrendben ellenőrizd:
 - `requireAuth` middleware (`server/src/auth.js`)
 - `exchangeWithPocketId` + `/auth/token` + `/auth/refresh` route-ok
 - CORS/body-parser/bind konfiguráció (`server/src/index.js`)
+
+## 11. Scaffold integráció (Next.js App Router)
+
+Ha ezt a repó scaffold generátorával használod, a front matterben ezt válaszd:
+
+```yaml
+auth:
+  enabled: true
+  provider: pocket-id-oidc
+```
+
+Ez a `nextjs-app-router` célhoz automatikusan generálja a Pocket ID auth réteget:
+
+- `lib/auth.ts`: Pocket ID token-csere (`/api/oidc/token`), JWKS-verifikáció és
+  `getCurrentUserId()` szerver-komponensekhez;
+- `lib/auth/pkce.ts` és `components/auth-provider.tsx`: PKCE login, session állapot,
+  időzített refresh és `visibilitychange` ellenőrzés;
+- `app/auth/callback/page.tsx`: a dedikált callback oldal;
+- `app/api/auth/token`, `refresh`, `session`, `logout`: Next.js Route Handlerek;
+- `components/ui/auth-controls.tsx`: belépés/kilépés vezérlő a generált navigációhoz.
+
+### Eltérés a vanilla/Express mintához képest
+
+Az Express példa localStorage-ban tárolja a tokeneket, mert statikus SPA-hoz készült.
+A generált Next.js projekt httpOnly cookie-kat használ, hogy az SSR szerver-komponensek és
+az API Route Handlerek is ellenőrizhessék a sessiont. A kliensoldali PKCE verifier továbbra
+is `sessionStorage`-ban marad; a client secret soha nem kerül a böngészőbe.
+
+A generált redirect URI nem a root `/`, hanem:
+
+```text
+http://localhost:3000/auth/callback
+```
+
+Éles környezetben ezt a tényleges originre kell cserélni az `.env`-ben, és karakterre
+azonosan be kell jegyezni Pocket ID-ban is. A generált `.env.example` ezeket a változókat
+tartalmazza:
+
+```dotenv
+NEXT_PUBLIC_OIDC_ISSUER=https://auth.example.com
+NEXT_PUBLIC_OIDC_CLIENT_ID=
+OIDC_CLIENT_SECRET=
+OIDC_REDIRECT_URI=http://localhost:3000/auth/callback
+# OIDC_AUDIENCE=
+```
+
+A `pocket-id-oidc` provider jelenleg csak `nextjs-app-router` projekthez támogatott.
+Vite+React esetén a scaffold figyelmeztetést ír ki, mert annak nincs generált backendje a
+`client_secret`-et igénylő token-cseréhez.

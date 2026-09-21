@@ -22,7 +22,9 @@ másolni. Ne prózában írd, hanem pontokban, ezekkel a szekciókkal:
 - Stack: framework, styling, kell-e router
 - Adatbázis: motor, ORM, és minden entitás a mezőivel és relációival
 - API: kell-e, milyen stílusban
-- Auth: kell-e, milyen módszerrel
+- Auth: kell-e, milyen módszerrel (`none`, `next-auth-credentials` vagy `pocket-id-oidc`)
+  - Pocket ID esetén csak Next.js App Routert válassz; a scaffold a token-cserét Route Handlerben,
+    a sessiont httpOnly cookie-ban, a kliensoldali belépést pedig PKCE-vel generálja.
 - AI-integráció: kell-e, mi a célja
 - PWA: kell-e, offline-e
 - Deployment: cél, kell-e Docker

@@ -4,7 +4,7 @@ spec_version: "0.2"
 project:
   name: "machon-cards"
   type: "web-app"
-  one_liner: "Egyszerű, Mochi-szerű flashcard rendszer a Sulchán Áruch négy részének és szimánjainak struktúrájára."
+  one_liner: "Egyszerű, Mochi-szerű flashcard rendszer a Sulchán Áruch négy részének és szimánjainak struktúrájára, Pocket ID bejelentkezéssel."
 
 stack:
   framework: "nextjs-app-router"
@@ -23,8 +23,8 @@ api:
   style: "route-handlers"
 
 auth:
-  enabled: false
-  provider: "none"
+  enabled: true
+  provider: "pocket-id-oidc"
 
 ai_integration:
   enabled: false
@@ -76,9 +76,9 @@ model Card {
 }
 
 model AppPreference {
-  id             String @id @default(cuid())
+  id             String @id
   currentSimanId String
-  currentSiman   Siman @relation(fields: [currentSimanId], references: [id], onDelete: Restrict)
+  currentSiman   Siman  @relation(fields: [currentSimanId], references: [id], onDelete: Restrict)
 
   @@index([currentSimanId])
 }
@@ -164,7 +164,7 @@ model AppPreference {
   "AppPreference": [
     {
       "_alias": "defaultPreference",
-      "id": "seed_defaultPreference",
+      "id": "dev-test-user",
       "currentSimanId": {
         "$ref": "orachChaim1"
       }
@@ -179,7 +179,7 @@ model AppPreference {
 # ui-screens
 
 ## /
-[Data: AppPreference.singleton()]
+[Data: AppPreference.findUnique({userId})]
 [Data: Siman.findMany()]
 [Text: Machon Cards]
 [Text: Aktuális szimán]
@@ -211,15 +211,15 @@ model AppPreference {
 
 ## /siman
 [Data: Siman.findMany()]
-[Data: AppPreference.singleton()]
+[Data: AppPreference.findUnique({userId})]
 [Text: Szimánok]
 [List: rows=Siman.findMany()]
 [Select: currentSimanId; options=Siman.findMany(); value=id; label=displayName; required]
-[Button: Aktuális szimán beállítása -> AppPreference.updateSingleton()]
+[Button: Aktuális szimán beállítása -> AppPreference.update({userId})]
 [Link: Dashboard -> /]
 
 ## /study
-[Data: AppPreference.singleton()]
+[Data: AppPreference.findUnique({userId})]
 [Text: Gyakorlás]
 [Text: Aktuális szimán: {currentSimanId}]
 [InteractiveList: rows=Card.findMany(); primary=front; secondary=back; reveal="Válasz mutatása"; next="Következő"]
@@ -246,10 +246,11 @@ model AppPreference {
 ```text
 # constraints
 
-- Az első verzióban nincs auth, session vagy User modell; minden látogató ugyanazt a közös adatállományt használja.
+- A bejelentkezés Pocket ID OIDC-n keresztül történik; nincs saját User modell, a bejelentkezett felhasználót a JWT `sub` claimje (`{userId}`) azonosítja.
 - A Sulchán Áruch struktúrája és a felhasználói kártyák maradjanak különválasztva.
 - Az alapstruktúra Sulchán Áruch → rész → szimán → kártyák.
 - Egy Card alapvetően csak front + back + siman kapcsolatot tartalmazzon.
+- A kártyaállomány (Siman, Card) minden bejelentkezett felhasználó között közös; csak az aktuális szimán preferencia személyes, felhasználónkénti (AppPreference).
 - Nincs spaced repetition vagy összetett gyakorlási algoritmus.
 - Nincs statisztikai dashboard, streak, gamification vagy achievement rendszer.
 - Nincs AI-integráció.
@@ -261,7 +262,6 @@ model AppPreference {
 - Az UI legyen egyszerű, gyors, reszponzív és mobile-first.
 - Ne tervezzünk előre olyan funkciókat, amelyekre az első használat során nincs szükség.
 - A gyakorlási workflow maradjon egyszerű, és a későbbi használati tapasztalatok alapján bővíthető legyen.
-- Az adatmodellt úgy kell kialakítani, hogy később auth és további gyakorlási módok hozzáadhatók legyenek nagyobb újratervezés nélkül, de az első verzióban ne legyen auth-absztrakció vagy felesleges User-réteg.
 - A cross-device működést a központi VPS-en futó SQLite adatbázis biztosítja.
 - A Mochi import ne próbáljon automatikusan szimánt felismerni.
 ```
@@ -272,15 +272,15 @@ model AppPreference {
 # development-order
 
 1. Next.js + TypeScript scaffold
-2. SQLite + Prisma
-3. Adatmodell és fejlesztői Sulchán Áruch szimán-struktúra seedelése
-4. Dashboard
-5. Kártya CRUD
-6. Szimánválasztás és aktuális szimán tárolása
-7. Egyszerű gyakorlási mód
-8. Mochi import
-9. Reszponzív és mobil UI finomítása
-10. VPS deployment PM2 + nginx
-11. Későbbi külön fejlesztési lépésben auth hozzáadása
+2. Pocket ID OIDC auth bekötése (login, callback, session cookie, JWKS-ellenőrzés)
+3. SQLite + Prisma
+4. Adatmodell és fejlesztői Sulchán Áruch szimán-struktúra seedelése
+5. Dashboard
+6. Kártya CRUD
+7. Szimánválasztás és felhasználónkénti aktuális szimán tárolása
+8. Egyszerű gyakorlási mód
+9. Mochi import
+10. Reszponzív és mobil UI finomítása
+11. VPS deployment PM2 + nginx
 12. A használat alapján a gyakorlási workflow további finomítása
 ```
