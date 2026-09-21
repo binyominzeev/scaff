@@ -183,10 +183,10 @@ Ma
 
 ## /onboarding
 Pénzügyi alapbeállítások
-[Input: havi bevétel (number, required) placeholder="500000"]
-[Input: fix havi kiadások (number, required) placeholder="180000"]
-[Input: havi megtakarítási cél (number, required) placeholder="100000"]
-[Input: egyéb rendszeres kiadások (number) placeholder="0"]
+[Input: month (text, required) placeholder="2026-09"]
+[Input: income (number, required) placeholder="500000"]
+[Input: fixedExpenses (number, required) placeholder="180000"]
+[Input: savingsTarget (number, required) placeholder="100000"]
 [Text: "A megadott alapadatok alapján kiszámítható a szabadon beosztható összeg."]
 [Button: "Mentés" -> Budget.create()]
 [Link: "Vissza a Mai oldalra" -> /]
@@ -199,20 +199,20 @@ Kiadások
 
 ## /expenses/new
 Új kiadás
-[Input: dátum (date, required) placeholder="2026-09-21"]
-[Input: összeg (number, required) placeholder="10000"]
-[Input: megnevezés (text, required) placeholder="Bevásárlás"]
-[Input: kategória (text) placeholder="Élelmiszer"]
+[Input: date (date, required) placeholder="2026-09-21"]
+[Input: amount (number, required) placeholder="10000"]
+[Input: description (text, required) placeholder="Bevásárlás"]
+[Input: category (text) placeholder="Élelmiszer"]
 [Button: "Mentés" -> Expense.create()]
 [Link: "Mégse" -> /expenses]
 
 ## /expenses/[id]
 Kiadás részletei
 [Data: Expense.findUnique({id})]
-[Input: dátum (date, required) placeholder="2026-09-21"]
-[Input: összeg (number, required) placeholder="10000"]
-[Input: megnevezés (text, required) placeholder="Bevásárlás"]
-[Input: kategória (text) placeholder="Élelmiszer"]
+[Input: date (date, required) placeholder="2026-09-21"]
+[Input: amount (number, required) placeholder="10000"]
+[Input: description (text, required) placeholder="Bevásárlás"]
+[Input: category (text) placeholder="Élelmiszer"]
 [Button: "Mentés" -> Expense.update({id})]
 [Button: "Törlés" -> Expense.delete({id})]
 [Link: "Vissza a kiadásokhoz" -> /expenses]
@@ -226,22 +226,21 @@ Tervezett kiadások
 
 ## /planned-expenses/new
 Új tervezett kiadás
-[Input: dátum (date, required) placeholder="2026-09-27"]
-[Input: összeg (number, required) placeholder="30000"]
-[Input: megnevezés (text, required) placeholder="Új vásárlás"]
-[Input: kategória (text) placeholder="Egyéb"]
-[Select: státusz; options=PlannedExpense.findMany(); value=id; label=status; required]
+[Input: date (date, required) placeholder="2026-09-27"]
+[Input: amount (number, required) placeholder="30000"]
+[Input: description (text, required) placeholder="Új vásárlás"]
+[Input: category (text) placeholder="Egyéb"]
 [Button: "Mentés" -> PlannedExpense.create()]
 [Link: "Mégse" -> /planned-expenses]
 
 ## /planned-expenses/[id]
 Tervezett kiadás részletei
 [Data: PlannedExpense.findUnique({id})]
-[Input: dátum (date, required) placeholder="2026-09-27"]
-[Input: összeg (number, required) placeholder="30000"]
-[Input: megnevezés (text, required) placeholder="Új vásárlás"]
-[Input: kategória (text) placeholder="Egyéb"]
-[Input: státusz (text, required) placeholder="PLANNED / COMPLETED / CANCELLED"]
+[Input: date (date, required) placeholder="2026-09-27"]
+[Input: amount (number, required) placeholder="30000"]
+[Input: description (text, required) placeholder="Új vásárlás"]
+[Input: category (text) placeholder="Egyéb"]
+[Input: status (text, required) placeholder="PLANNED / COMPLETED / CANCELLED"]
 [Button: "Mentés" -> PlannedExpense.update({id})]
 [Button: "Teljesítettként megjelölés" -> PlannedExpense.update({id})]
 [Button: "Törlés" -> PlannedExpense.delete({id})]
@@ -250,9 +249,9 @@ Tervezett kiadás részletei
 
 ## /what-if
 Mi lenne, ha?
-[Input: összeg (number, required) placeholder="50000"]
-[Input: dátum (date, required) placeholder="2026-09-28"]
-[Input: megnevezés (text) placeholder="Nagyobb vásárlás"]
+[Input: amount (number, required) placeholder="50000"]
+[Input: date (date, required) placeholder="2026-09-28"]
+[Input: description (text) placeholder="Nagyobb vásárlás"]
 [Heading: Jelenlegi helyzet]
 [Text: "Jelenlegi napi keret: {currentDailyBudget} Ft"]
 [Heading: Vásárlás hatása]
@@ -289,9 +288,9 @@ Beállítások
 ## /settings/budget/[id]
 Pénzügyi alapadatok módosítása
 [Data: Budget.findUnique({id})]
-[Input: havi bevétel (number, required) placeholder="500000"]
-[Input: fix havi kiadások (number, required) placeholder="180000"]
-[Input: havi megtakarítási cél (number, required) placeholder="100000"]
+[Input: income (number, required) placeholder="500000"]
+[Input: fixedExpenses (number, required) placeholder="180000"]
+[Input: savingsTarget (number, required) placeholder="100000"]
 [Button: "Mentés" -> Budget.update({id})]
 [Link: "Vissza a beállításokhoz" -> /settings]
 ```

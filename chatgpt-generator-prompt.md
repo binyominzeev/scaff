@@ -102,6 +102,15 @@ meg) — MINDIG adj meg ilyet minden képernyőn, ne csak a formoknál. Token-sz
   [Heading: szöveg vagy {field}]                            -- kisebb alcím (H2) egy szekció elé, pl. egy Table/List fölé
   [Text: szöveg vagy {field}]
 
+Az `[Input: mezőnév ...]` és `[Select: mezőnév; ...]` sorokban a `mezőnév` MINDIG a Prisma
+modell pontos, angol camelCase mezőneve (pl. `income`, `dueDate`, `displayName`) — soha nem
+szabad ékezetes, szóközt tartalmazó vagy szabadon kitalált leíró szöveg (pl. "havi bevétel",
+"dátum"). A generátor a mezőnevet szó szerint mezőnévként és UI-címkeként is felhasználja, és
+egyetlen ékezet vagy szóköz a formot érvényteleníti. Minden `create()` formon minden olyan
+modellmezőhöz adj `[Input: ...]` vagy `[Select: ...]` sort, amelynek nincs Prisma `@default`
+értéke és nem kapcsolati/auto mező (id, userId, createdAt, updatedAt) — különben a rekord
+létrehozása hibázik a kötelező mező hiánya miatt.
+
 Ha egy képernyőn több, egymástól elkülönülő adatblokk van (pl. két Table vagy egy Table és egy
 InteractiveList), tegyél egy `[Heading: ...]` sort közvetlenül az adott blokk elé, hogy a
 felhasználó lássa, melyik szekció mit mutat — ez pusztán vizuális, nem hoz létre új adatlekérést.
