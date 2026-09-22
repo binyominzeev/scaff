@@ -108,6 +108,33 @@
         "target": { "type": "string", "enum": ["local-dev", "docker-vps", "pm2"] },
         "docker": { "type": "boolean" }
       }
+    },
+
+    "design": {
+      "type": "object",
+      "description": "Optional visual variety controls. Omitted entirely => minimal-mono look + dense-table layout (today's default styling, unchanged).",
+      "properties": {
+        "look": {
+          "type": "string",
+          "description": "20 curated Tailwind design-token presets. See README.md 'Design looks & layout archetypes' for descriptions.",
+          "enum": [
+            "minimal-mono", "playful-cards", "editorial-serif", "dense-dashboard", "warm-community",
+            "brutalist-raw", "glassmorphic", "dark-terminal", "soft-neumorph", "corporate-clean",
+            "retro-pixel", "luxury-serif", "paper-texture", "bold-brutalist-color", "scandi-minimal",
+            "medical-clinical", "kids-friendly", "gradient-vivid", "newsprint", "glass-dashboard-dark"
+          ]
+        },
+        "components": {
+          "type": "string",
+          "description": "20 curated layout archetypes; only a subset has real distinct rendering, the rest fall back to dense-table. See README.md 'Design looks & layout archetypes' for the implemented/fallback status.",
+          "enum": [
+            "dense-table", "card-grid", "stacked-list", "split-detail", "bento",
+            "two-column-reader", "form-focused", "tabbed-sections", "sidebar-shell", "kanban-columns",
+            "timeline-feed", "hero-plus-grid", "carousel-strip", "accordion-list", "gallery-mosaic",
+            "stat-summary-band", "calendar-grid", "inbox-triple-pane", "wizard-steps", "full-bleed-showcase"
+          ]
+        }
+      }
     }
   }
 }

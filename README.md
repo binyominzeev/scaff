@@ -8,6 +8,75 @@ oldal-stubokat rak le, hanem **valódi, működő UI-t** — szerver-komponens l
 egy közös `Nav`-ot, és mindezt egy saját, előre megírt, elegáns `components/ui/` komponens-kicsomagolt
 (Button, Input, Table, Card, Nav) tetejére építve.
 
+## Design looks & layout archetypes
+
+A front matter opcionális `design.look` / `design.components` mezőivel a generált UI kinézete
+variálható. **Ez a szekció az EGYETLEN megbízható forrás arra, hogy mi van ténylegesen
+implementálva a motorban (valós Tailwind-renderelés) és mi csak spec-szintű, leíró érték
+(fallback rendereléssel)** — nem kell forráskódot böngészni hozzá. Forrás: `lib/designCatalog.mjs`
+`implemented` flag-jei; ha ott változás történik, ezt a táblázatot **ugyanabban a
+commit/PR-ban** frissíteni kell, mert a kettő szinkronban tartása kézi (nincs automatikus
+ellenőrzés a kettő között).
+
+Ha a spec nem ad meg `design`-t, a kimenet a `minimal-mono` + `dense-table` alapértelmezésre esik
+vissza — ez pontosan a korábbi (design-katalógus előtti) hardcoded kinézet, tehát régi specek
+kimenete változatlan marad.
+
+### `design.look` (20 db, mindegyik ténylegesen implementálva)
+
+| id | Leírás | Státusz |
+|---|---|---|
+| `minimal-mono` | Restrained monochrome palette, generous whitespace, sharp/barely-rounded corners, sans-serif. | ✅ Implemented |
+| `playful-cards` | Rounded cards, saturated pastel accents, friendly icons/badges, soft shadows. | ✅ Implemented |
+| `editorial-serif` | Serif/mixed typography, narrow reading column, minimal chrome, content-first. | ✅ Implemented |
+| `dense-dashboard` | Tight spacing, small type, high information density, table-centric. | ✅ Implemented |
+| `warm-community` | Warm palette, avatar-forward, larger touch targets, human-centered layout. | ✅ Implemented |
+| `brutalist-raw` | Unstyled borders, harsh contrast, exposed grid lines, deliberately unpolished. | ✅ Implemented |
+| `glassmorphic` | Frosted translucent panels, background blur, soft gradients, layered depth. | ✅ Implemented |
+| `dark-terminal` | Dark background, monospace accents, neon/muted-green highlights, dev-tool feel. | ✅ Implemented |
+| `soft-neumorph` | Subtle embossed shadows, low-contrast surfaces, tactile button feel. | ✅ Implemented |
+| `corporate-clean` | Blue/gray palette, structured grid, conservative typography, low noise. | ✅ Implemented |
+| `retro-pixel` | Pixel-art icons, blocky borders, saturated primary colors, 8-bit nostalgia. | ✅ Implemented |
+| `luxury-serif` | Black/gold or deep-tone palette, elegant serif headings, generous negative space. | ✅ Implemented |
+| `paper-texture` | Off-white bg, subtle paper/grain texture, ink-like typography, print-inspired. | ✅ Implemented |
+| `bold-brutalist-color` | Oversized type, clashing bright colors, thick black outlines, high energy. | ✅ Implemented |
+| `scandi-minimal` | Muted neutrals, thin-weight sans-serif, lots of air, understated accents. | ✅ Implemented |
+| `medical-clinical` | Cool blues/whites, high legibility, clear iconography, trustworthy/sterile. | ✅ Implemented |
+| `kids-friendly` | Rounded shapes, bright primary colors, large tap targets, playful illustrations. | ✅ Implemented |
+| `gradient-vivid` | Bold multi-color gradients as backgrounds/buttons, high-energy modern SaaS feel. | ✅ Implemented |
+| `newsprint` | Black-and-white, serif headlines, column layout, classic newspaper structure. | ✅ Implemented |
+| `glass-dashboard-dark` | Dark mode with glassmorphic panels, glowing accents, data-viz oriented. | ✅ Implemented |
+
+### `design.components` (20 db, ebből 6 valós renderelés, 14 fallback)
+
+| id | Leírás | Státusz |
+|---|---|---|
+| `dense-table` | Classic row/column table, sortable headers, scanning many records. | ✅ Implemented (own rendering) — default |
+| `card-grid` | Records as a grid of equal-size cards, one record per card. | ✅ Implemented (own rendering) |
+| `stacked-list` | Simple vertical list of rows, minimal decoration, one record per line. | ✅ Implemented (own rendering) |
+| `split-detail` | List left, selected record detail right (master-detail). | ↩️ Falls back to dense-table |
+| `bento` | Grid of variable-sized cells, one large anchor block + smaller ones. | ↩️ Falls back to dense-table |
+| `two-column-reader` | Narrow centered text column, minimal surrounding UI. | ✅ Implemented (own rendering) |
+| `form-focused` | Single centered column form, no distractions. | ↩️ Falls back to dense-table |
+| `tabbed-sections` | Content split across horizontal tabs. | ↩️ Falls back to dense-table |
+| `sidebar-shell` | Persistent left sidebar nav + main content area. | ↩️ Falls back to dense-table |
+| `kanban-columns` | Multiple vertical lanes, records as draggable-style cards. | ↩️ Falls back to dense-table |
+| `timeline-feed` | Vertically scrolling chronological feed, newest first. | ↩️ Falls back to dense-table |
+| `hero-plus-grid` | Large hero block at top + grid of secondary items below. | ↩️ Falls back to dense-table |
+| `carousel-strip` | Horizontally scrollable row of cards, one focus item visible. | ↩️ Falls back to dense-table |
+| `accordion-list` | Collapsible expandable rows, detail revealed on click. | ✅ Implemented (own rendering) |
+| `gallery-mosaic` | Irregular image/content grid, visual variety over uniform rows. | ↩️ Falls back to dense-table |
+| `stat-summary-band` | Row of key numeric stats at top, detail content below. | ✅ Implemented (own rendering) |
+| `calendar-grid` | Month/week grid layout for date-based records. | ↩️ Falls back to dense-table |
+| `inbox-triple-pane` | Three-column layout: folders, item list, item detail. | ↩️ Falls back to dense-table |
+| `wizard-steps` | Linear step-by-step form flow with progress indicator. | ↩️ Falls back to dense-table |
+| `full-bleed-showcase` | Edge-to-edge large visual blocks, minimal text, presentation-style. | ↩️ Falls back to dense-table |
+
+`↩️ Falls back to dense-table` azt jelenti: a spec-ben érvényes, választható enum-érték (a
+generáló LLM kifejezheti vele a tervezői szándékot), de a scaffold motor jelenleg a
+`dense-table` renderelési stratégiával generálja le, amíg saját implementációt nem kap.
+
+
 ## Telepítés
 
 ```bash

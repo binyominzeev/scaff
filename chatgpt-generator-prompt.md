@@ -35,6 +35,7 @@ PONTOS FORMÁTUM, ebben a sorrendben:
   ai_integration: {enabled, provider (none|openai|custom-server), purpose}
   pwa: {enabled, offline}
   deployment: {target (local-dev|docker-vps|pm2), docker}
+  design: {look (lásd lent), components (lásd lent)}
 
 Auth provider választás:
 - `none`: nincs bejelentkezés.
@@ -43,6 +44,61 @@ Auth provider választás:
 - `pocket-id-oidc`: csak `nextjs-app-router` esetén válaszd. A scaffold teljes Pocket ID /
   OIDC Authorization Code + PKCE flow-t generál, Next.js Route Handlerekkel, JWKS token-
   ellenőrzéssel és httpOnly cookie sessionnel. A Vite+React ág ezt jelenleg nem támogatja.
+
+`design` mező — kötelező, MINDEN generáláskor válassz belőle, hogy a legenerált appok
+vizuálisan minél változatosabbak legyenek. NE válaszd ugyanazt a `look`-ot minden appnál —
+nézd meg az app célját/hangulatát, és válassz hozzá illő, de az eddigiektől eltérő stílust.
+
+`design.look` — pontosan az egyik az alábbi 20 közül (mind valós Tailwind-stílust generál):
+
+  minimal-mono         — Restrained monochrome palette, generous whitespace, sharp/barely-rounded corners, sans-serif.
+  playful-cards        — Rounded cards, saturated pastel accents, friendly icons/badges, soft shadows.
+  editorial-serif      — Serif/mixed typography, narrow reading column, minimal chrome, content-first.
+  dense-dashboard      — Tight spacing, small type, high information density, table-centric.
+  warm-community       — Warm palette, avatar-forward, larger touch targets, human-centered layout.
+  brutalist-raw        — Unstyled borders, harsh contrast, exposed grid lines, deliberately unpolished.
+  glassmorphic         — Frosted translucent panels, background blur, soft gradients, layered depth.
+  dark-terminal        — Dark background, monospace accents, neon/muted-green highlights, dev-tool feel.
+  soft-neumorph        — Subtle embossed shadows, low-contrast surfaces, tactile button feel.
+  corporate-clean      — Blue/gray palette, structured grid, conservative typography, low noise.
+  retro-pixel          — Pixel-art icons, blocky borders, saturated primary colors, 8-bit nostalgia.
+  luxury-serif         — Black/gold or deep-tone palette, elegant serif headings, generous negative space.
+  paper-texture        — Off-white bg, subtle paper/grain texture, ink-like typography, print-inspired.
+  bold-brutalist-color — Oversized type, clashing bright colors, thick black outlines, high energy.
+  scandi-minimal       — Muted neutrals, thin-weight sans-serif, lots of air, understated accents.
+  medical-clinical     — Cool blues/whites, high legibility, clear iconography, trustworthy/sterile.
+  kids-friendly        — Rounded shapes, bright primary colors, large tap targets, playful illustrations.
+  gradient-vivid       — Bold multi-color gradients as backgrounds/buttons, high-energy modern SaaS feel.
+  newsprint            — Black-and-white, serif headlines, column layout, classic newspaper structure.
+  glass-dashboard-dark — Dark mode with glassmorphic panels, glowing accents, data-viz oriented.
+
+`design.components` — pontosan az egyik az alábbi 20 közül. Csak 6 kap valós, eltérő
+motor-renderelést (`dense-table`, `card-grid`, `stacked-list`, `two-column-reader`,
+`accordion-list`, `stat-summary-band`) — ezt jelöli a lista, de a többi 14 is érvényes
+választás: a scaffold ilyenkor a `dense-table` rendereléssel esik vissza, a spec viszont
+így is rögzíti a tervezői szándékot. Lásd a README.md "Design looks & layout archetypes"
+szekcióját a mindig friss implementált/fallback státuszért.
+
+  dense-table          — Classic row/column table, sortable headers, scanning many records. [motor: valós]
+  card-grid            — Records as a grid of equal-size cards, one record per card. [motor: valós]
+  stacked-list         — Simple vertical list of rows, minimal decoration, one record per line. [motor: valós]
+  split-detail         — List left, selected record detail right (master-detail). [motor: fallback]
+  bento                — Grid of variable-sized cells, one large anchor block + smaller ones. [motor: fallback]
+  two-column-reader    — Narrow centered text column, minimal surrounding UI. [motor: valós]
+  form-focused         — Single centered column form, no distractions. [motor: fallback]
+  tabbed-sections      — Content split across horizontal tabs. [motor: fallback]
+  sidebar-shell        — Persistent left sidebar nav + main content area. [motor: fallback]
+  kanban-columns       — Multiple vertical lanes, records as draggable-style cards. [motor: fallback]
+  timeline-feed        — Vertically scrolling chronological feed, newest first. [motor: fallback]
+  hero-plus-grid       — Large hero block at top + grid of secondary items below. [motor: fallback]
+  carousel-strip       — Horizontally scrollable row of cards, one focus item visible. [motor: fallback]
+  accordion-list       — Collapsible expandable rows, detail revealed on click. [motor: valós]
+  gallery-mosaic       — Irregular image/content grid, visual variety over uniform rows. [motor: fallback]
+  stat-summary-band    — Row of key numeric stats at top, detail content below. [motor: valós]
+  calendar-grid        — Month/week grid layout for date-based records. [motor: fallback]
+  inbox-triple-pane    — Three-column layout: folders, item list, item detail. [motor: fallback]
+  wizard-steps         — Linear step-by-step form flow with progress indicator. [motor: fallback]
+  full-bleed-showcase  — Edge-to-edge large visual blocks, minimal text, presentation-style. [motor: fallback]
   A projekt összefoglalójában legyen egyértelmű, hogy a Pocket ID klienshez szükséges az
   issuer, client ID, backend-only client secret, valamint az `/auth/callback` redirect URI.
   A generált `.env` értékeit nem szabad kitalálni vagy titokkal feltölteni.
@@ -163,6 +219,8 @@ Generálás előtt ellenőrizd magadban:
 - minden {field} vagy route paraméterként, vagy [Data:]/form-mezőként fel van oldva
 - minden képernyő elérhető valahonnan
 - a front matter minden enum-értéke pontosan a megadott listák egyike
+- `design.look` és `design.components` mindegyike pontosan a megadott 20-20 elemű lista
+  egyike, és a választás illik az app hangulatához, és eltér attól, amit legutóbb választottál
 
 Most várom a projekt-összefoglalót.
 ```

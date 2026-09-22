@@ -58,6 +58,9 @@ function main() {
   if (spec.screens?.length) {
     console.log(`   UI képernyők: ${spec.screens.length}`);
   }
+  if (frontMatter.design?.look || frontMatter.design?.components) {
+    console.log(`   Design: look=${frontMatter.design?.look ?? "minimal-mono"} components=${frontMatter.design?.components ?? "dense-table"}`);
+  }
 
   const warnings = [...(spec.orphanWarnings || [])];
 
